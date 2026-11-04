@@ -22,7 +22,7 @@ test("User can add three tasks", async ({ page }) => {
   await expect(page.getByText(task1)).toBeVisible();
 
   //Assertion 92: Check the number of tasks
-  await expect(page.locator(".todo-list li")).toHaveCount(4);
+  await expect(page.locator(".todo-list li")).toHaveCount(3);
 
   //Assertion 3: Check the remaining-task counter
   await expect(page.locator(".todo-count")).toHaveText("3 items left");
