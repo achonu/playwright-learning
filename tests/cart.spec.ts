@@ -1,7 +1,11 @@
 import { test, expect } from "@playwright/test";
+import { InventoryPage } from "../pages/InventoryPage";
+import { CartPage } from "../pages/CartPage";
 
 test("CART-001: User can add a product to the basket", async ({ page }) => {
   await page.goto("https://www.saucedemo.com/");
+
+  const inventoryPage = new InventoryPage(page);
 
   // Log in using valid credentials
   // Locate the username and password fields
@@ -16,13 +20,10 @@ test("CART-001: User can add a product to the basket", async ({ page }) => {
   await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
 
   // Locate the Sauce Labs Backpack product card
-  const backpack = page.locator(".inventory_item").filter({
-    has: page.getByText("Sauce Labs Backpack", { exact: true }),
-  });
+  const backpack = inventoryPage.getProduct("Sauce Labs Backpack");
 
   // Click Add to cart INSIDE that product card
-
-  await backpack.getByRole("button", { name: "Add to cart" }).click();
+  await inventoryPage.addProduct("Sauce Labs Backpack");
 
   // Verify the button changes to Remove
   await expect(backpack.getByRole("button", { name: "Remove" })).toBeVisible();
@@ -55,6 +56,10 @@ test("CART-002: User can remove a product from the basket", async ({
 }) => {
   await page.goto("https://www.saucedemo.com/");
 
+  const cartPage = new CartPage(page);
+
+  const inventoryPage = new InventoryPage(page);
+
   // Log in using valid credentials
   const username = page.getByPlaceholder("Username");
   const password = page.getByPlaceholder("Password");
@@ -63,23 +68,18 @@ test("CART-002: User can remove a product from the basket", async ({
   await password.fill("secret_sauce");
   await loginButton.click();
 
-  // Add Sauce Labs Backpack to the basket
-  const backpack = page.locator(".inventory_item").filter({
-    has: page.getByText("Sauce Labs Backpack", { exact: true }),
-  });
-  await backpack.getByRole("button", { name: "Add to cart" }).click();
+  // Click Add to cart INSIDE that product card
+  await inventoryPage.addProduct("Sauce Labs Backpack");
 
   // Navigate to the basket page
   const shoppingCart = page.locator('[data-test="shopping-cart-link"]');
   await shoppingCart.click();
 
   // Locate the Backpack row in the basket
-  const basketPageProduct = page.locator(".cart_item").filter({
-    has: page.getByText("Sauce Labs Backpack", { exact: true }),
-  });
+  const basketPageProduct = cartPage.getCartProduct("Sauce Labs Backpack");
 
   // Click Remove inside the Backpack row
-  await basketPageProduct.getByRole("button", { name: "Remove" }).click();
+  await cartPage.removeProduct("Sauce Labs Backpack");
 
   // Verify Backpack has been removed
   await expect(basketPageProduct).toHaveCount(0);
