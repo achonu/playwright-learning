@@ -81,11 +81,11 @@ test("CART-002: User can remove a product from the basket", async ({
   // Click Remove inside the Backpack row
   await cartPage.removeProduct("Sauce Labs Backpack");
 
-  // Verify Backpack has been removed
-  await expect(basketPageProduct).toHaveCount(0);
+  // Verify the backpack has been removed from the basket
+  await expect(cartPage.getCartProduct("Sauce Labs Backpack")).toHaveCount(0);
 
-  // Verify the basket contains zero products
-  await expect(page.locator(".cart_item")).toHaveCount(0);
+  // Verify no other products are in the basket
+  await expect(cartPage.getCartItems()).toHaveCount(0);
 
   // Verify the shopping basket badge has disappeared
   await expect(

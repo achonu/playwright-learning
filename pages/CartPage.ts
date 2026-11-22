@@ -14,4 +14,8 @@ export class CartPage {
       .getByRole("button", { name: "Remove" })
       .click();
   }
+
+  getCartItems() {
+    return this.page.locator(".cart_item");
+  }
 }
