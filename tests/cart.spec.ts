@@ -1,26 +1,27 @@
 import { test, expect } from "@playwright/test";
 import { InventoryPage } from "../pages/InventoryPage";
 import { CartPage } from "../pages/CartPage";
+import { LoginPage } from "../pages/LoginPage";
+
+test.beforeEach(async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  await page.goto("https://www.saucedemo.com/");
+  await loginPage.login("standard_user", "secret_sauce");
+});
 
 test("CART-001: User can add a product to the basket", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com/");
-
   const inventoryPage = new InventoryPage(page);
-
-  // Log in using valid credentials
-  // Locate the username and password fields
-  const username = page.getByPlaceholder("Username");
-  const password = page.getByPlaceholder("Password");
-  const loginButton = page.locator('[data-test="login-button"]');
-  await username.fill("standard_user");
-  await password.fill("secret_sauce");
-  await loginButton.click();
 
   // Verify the user reaches the inventory page
   await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
 
   // Locate the Sauce Labs Backpack product card
   const backpack = inventoryPage.getProduct("Sauce Labs Backpack");
+
+  // Verify the Add to cart button is visible inside the backpack's product row.
+  await expect(
+    backpack.getByRole("button", { name: "Add to cart" }),
+  ).toBeVisible();
 
   // Click Add to cart INSIDE that product card
   await inventoryPage.addProduct("Sauce Labs Backpack");
@@ -54,19 +55,11 @@ test("CART-001: User can add a product to the basket", async ({ page }) => {
 test("CART-002: User can remove a product from the basket", async ({
   page,
 }) => {
-  await page.goto("https://www.saucedemo.com/");
-
   const cartPage = new CartPage(page);
 
   const inventoryPage = new InventoryPage(page);
 
-  // Log in using valid credentials
-  const username = page.getByPlaceholder("Username");
-  const password = page.getByPlaceholder("Password");
-  const loginButton = page.locator('[data-test="login-button"]');
-  await username.fill("standard_user");
-  await password.fill("secret_sauce");
-  await loginButton.click();
+  await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
 
   // Click Add to cart INSIDE that product card
   await inventoryPage.addProduct("Sauce Labs Backpack");
